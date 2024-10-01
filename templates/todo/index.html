@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo List</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 80%;
+            margin: auto;
+            overflow: hidden;
+        }
+
+        h1 {
+            background-color: #333;
+            color: #fff;
+            padding: 10px 0;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            background: #fff;
+            margin: 5px 0;
+            padding: 10px;
+            border-left: 4px solid #333;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        a {
+            text-decoration: none;
+            color: #d63131;
+            padding: 5px;
+            border-radius: 3px;
+            border: 1px solid #333;
+        }
+
+        li a {
+            color: #333;
+        }
+
+        a:hover {
+            background-color: #333;
+            color: #fff;
+        }
+
+        .actions a {
+            margin-left: 10px;
+        }
+
+        .create-form,
+        .update-form {
+            margin-top: 20px;
+            background: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .create-form input,
+        .update-form input {
+            width: 90%;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        .create-form button,
+        .update-form button {
+            background-color: #333;
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        .create-form button:hover,
+        .update-form button:hover {
+            background-color: #555;
+        }
+    </style>
+</head>
+
+    <body>
+
+        <!-- Navigation Menu -->
+        <section class="">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12">
+                        <h1>Todo List</h1>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Create New Todo Form -->
+        <section class="">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="create-form">
+                            <h2>Name</h2>
+                            <form method="POST" action="{% url 'create_todo' %}">
+                                {% csrf_token %}
+                                <input name="name" placeholder="Enter Name" required>
+                                <button type="submit"><i class="fas fa-plus"></i> Add Name</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Update Todo Form (if on update page) -->
+        <section class="">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12">
+                        {% if todo %}
+                        <div class="update-form">
+                            <h2>Update</h2>
+                            <form method="POST" action="{% url 'update_todo' todo.id %}">
+                                {% csrf_token %}
+                                <input type="text" name="name" value="{{ todo.name }}" required>
+                                <button type="submit"><i class="fas fa-save"></i> Update Name</button>
+                            </form>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Todo List -->
+        <section class="">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12">
+                        <ul>
+                            {% for todo in todos %}
+                            <li>
+                                {{ todo.name }}
+                                <div class="actions">
+                                    <a href="{% url 'update_todo' todo.id %}"><i class="fas fa-edit"></i> Update</a>
+                                    <a href="{% url 'delete_todo' todo.id %}"><i class="fas fa-trash"></i> Delete</a>
+                                    {% if not todo.is_complete %}
+                                        <a href=""><i class="fa fa-check-square" aria-hidden="true"></i> Complete</a>
+                                    {% else %}
+                                        <span>Completed on {{ todo.time_date }}</span>
+                                    {% endif %}
+                                </div>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </body>
+
+</html>
