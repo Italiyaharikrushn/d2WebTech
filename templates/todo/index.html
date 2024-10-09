@@ -40,27 +40,25 @@
             border-left: 4px solid #333;
             display: flex;
             justify-content: space-between;
+            align-items: center;
         }
 
-        a {
+        .actions {
+            display: flex;
+        }
+
+        .actions a {
+            margin-left: 10px;
             text-decoration: none;
-            color: #d63131;
+            color: #333;
             padding: 5px;
             border-radius: 3px;
             border: 1px solid #333;
         }
 
-        li a {
-            color: #333;
-        }
-
         a:hover {
             background-color: #333;
             color: #fff;
-        }
-
-        .actions a {
-            margin-left: 10px;
         }
 
         .create-form,
@@ -72,8 +70,8 @@
             box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
         }
 
-        .create-form input,
-        .update-form input {
+        .create-form input[type="text"],
+        .update-form input[type="text"] {
             width: 90%;
             padding: 10px;
             margin-bottom: 10px;
@@ -102,11 +100,8 @@
             top: 0;
             width: 100%;
             height: 100%;
-            overflow: auto;
-            background-color: rgb(0, 0, 0);
             background-color: rgba(0, 0, 0, 0.4);
             padding-top: 60px;
-            width: 1005;
         }
 
         .modal-content {
@@ -114,7 +109,9 @@
             margin: 5% auto;
             padding: 20px;
             border: 1px solid #888;
-            width: 80%;
+            height: auto;
+            width: 20%;
+            /* top: 0; */
         }
 
         .close {
@@ -136,6 +133,7 @@
             padding: 10px;
             color: white;
             border: none;
+            margin-right: 10px;
         }
 
         .cancelbtn {
@@ -145,87 +143,143 @@
         .deletebtn {
             background-color: #d63131;
         }
+
+        /* Checkbox */
+        .checkbox {
+            display: block;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .checkbox input {
+            margin-right: 5px;
+            cursor: pointer;
+        }
     </style>
 </head>
 
-<body>
-
-    <section>
-        <div class="container">
-            <h1>Todo List</h1>
-        </div>
-    </section>
-
-    <section>
-        <div class="container">
-            <div class="create-form">
-                <h2>Add New Todo</h2>
-                <form method="POST" action="{% url 'create_todo' %}">
-                    {% csrf_token %}
-                    <input name="name" placeholder="Enter Name" required>
-                    <button type="submit"><i class="fas fa-plus"></i> Add Todo</button>
-                </form>
+    <body>
+        <!-- Title / Header -->
+        <section>
+            <div class="container">
+                <h1>Todo List</h1>
             </div>
-        </div>
-    </section>
+        </section>
 
-    {% if todo %}
-    <section>
-        <div class="container">
-            <div class="update-form">
-                <h2>Update Todo</h2>
-                <form method="POST" action="{% url 'update_todo' todo.id %}">
-                    {% csrf_token %}
-                    <input type="text" name="name" value="{{ todo.name }}" required>
-                    <button type="submit"><i class="fas fa-save"></i> Update Todo</button>
-                </form>
+        <!-- Add Todo -->
+        <section>
+            <div class="container">
+                <div class="create-form">
+                    <h2>Add New Todo</h2>
+                    <form method="POST" action="{% url 'create_todo' %}">
+                        {% csrf_token %}
+                        <input type="text" name="name" placeholder="Enter Your Name" required><br>
+                        <input type="text" name="description" placeholder="Enter Your Description" required><br>
+
+                        <label class="checkbox">
+                            <input type="checkbox" id="myCheck" onclick="myFunction()" name="complete" {% if todo.is_complete %}checked{% endif %}>Complete
+                        </label>
+                        <br>
+                        <input id="date" type="date" name="date" style="display:none" value="{{ todo.date }}"><br>
+
+                        <button type="submit" onclick="showCreateModal('{{ todo.id }}')"><i class="fas fa-plus"></i>
+                            Add</button>
+                    </form>
+                </div>
             </div>
-        </div>
-    </section>
-    {% endif %}
+        </section>
 
-    <section>
-        <div class="container">
-            <ul>
-                {% for todo in todos %}
-                <li>
-                    {{ todo.name }}
-                    <div class="actions">
-                        <!-- <a href="#"><i class="fa fa-exclamation-circle" aria-hidden="true"></i> Incomlate</a>
-                        <a href="#"><i class="fa fa-check" aria-hidden="true"></i> Comlate</a> -->
-                        <a href="{% url 'update_todo' todo.id %}"><i class="fas fa-edit"></i> Update</a>
-                        <a href="#" onclick="showDeleteModal('{{ todo.id }}')"><i class="fas fa-trash"></i> Delete</a>
+        <!-- Update Todo -->
+        {% if todo %}
+        <section>
+            <div class="container">
+                <div class="update-form">
+                    <h2>Update Todo</h2>
+                    <form method="POST" action="{% url 'update_todo' todo.id %}">
+                        {% csrf_token %}
+                        <input type="text" name="name" value="{{ todo.name }}" placeholder="Enter Name" required><br>
+                        <input type="text" name="description" value="{{ todo.description }}" placeholder="Enter Description"
+                            required><br>
 
+                        <label class="checkbox">
+                            <input type="checkbox" id="myChecked" onclick="myFun()" name="completed" {% if todo.is_complete %}checked{% endif %}>Complete
+                        </label>
+                        <br>
+                        <input id="dated" type="date" name="dated" style="display:none" value="{{ todo.date }}"><br>
+
+                        <button type="submit"><i class="fas fa-save"></i> Update Todo</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+        {% endif %}
+
+        <!-- Todo List -->
+        <section>
+            <div class="container">
+                <ul>
+                    {% for todo in todos %}
+                    <li>
+                        <div>
+                            <strong>{{ todo.name }}</strong>: {{ todo.description }} - {{todo.is_complete}}
+                            <p>{{ todo.date }}</p>
+                        </div>
+                        <div class="actions">
+                            <a href="{% url 'update_todo' todo.id %}"><i class="fas fa-edit"></i> Update</a>
+                            <a href="#" onclick="showDeleteModal('{{ todo.id }}')"><i class="fas fa-trash"></i> Delete</a>
+                        </div>
+
+                        <!-- Modal for Delete Confirmation -->
                         <div id="{{ todo.id }}" class="modal">
                             <div class="modal-content">
-                                <span class="close" onclick="hideDeleteModal('{{ todo.id }}')"><i class="fas fa-window-close"></i></span>
+                                <span class="close" onclick="hideDeleteModal('{{ todo.id }}')"><i
+                                        class="fas fa-window-close"></i></span>
                                 <p>Are you sure you want to delete?</p>
-                                <div class="row">
-                                    <form method="POST" action="{% url 'delete_todo' todo.id %}">
-                                        <button type="button" class="cancelbtn" onclick="hideDeleteModal('{{ todo.id }}')">Cancel</button>
-                                        {% csrf_token %}
-                                        <button type="submit" class="deletebtn">Delete</button>
-                                    </form>
-                                </div>
+                                <form method="POST" action="{% url 'delete_todo' todo.id %}">
+                                    {% csrf_token %}
+                                    <button type="button" class="cancelbtn"
+                                        onclick="hideDeleteModal('{{ todo.id }}')">Cancel</button>
+                                    <button type="submit" class="deletebtn">Delete</button>
+                                </form>
                             </div>
                         </div>
-                    </div>
-                </li>
-                {% endfor %}
-            </ul>
-        </div>
-    </section>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </section>
 
-    <script>
-        function showDeleteModal(id) {
-            document.getElementById(id).style.display = 'block';
-        }
+        <!-- Modal and Checkbox Scripts -->
+        <script>
+            function showDeleteModal(id) {
+                document.getElementById(id).style.display = 'block';
+            }
 
-        function hideDeleteModal(id) {
-            document.getElementById(id).style.display = 'none';
-        }
-    </script>
+            function hideDeleteModal(id) {
+                document.getElementById(id).style.display = 'none';
+            }
 
-</body>
+            function myFunction() {
+                var checkBox = document.getElementById("myCheck");
+                var dateInput = document.getElementById("date");
+                if (checkBox.checked) {
+                    dateInput.style.display = "block";
+                } else {
+                    dateInput.style.display = "none";
+                }
+            }
+
+            function myFun() {
+                var checkBox = document.getElementById("myChecked");
+                var dateInput = document.getElementById("dated");
+                if (checkBox.checked) {
+                    dateInput.style.display = "block";
+                } else {
+                    dateInput.style.display = "none";
+                }
+            }
+        </script>
+
+    </body>
 
 </html>
